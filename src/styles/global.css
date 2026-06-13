@@ -1,0 +1,198 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#0f172a;
+  color:white;
+}
+
+a{
+  text-decoration:none;
+}
+
+.landing{
+  min-height:100vh;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:25px 40px;
+}
+
+.btn{
+  background:#2563eb;
+  color:white;
+
+  padding:10px 18px;
+
+  border-radius:10px;
+}
+
+.hero{
+  max-width:800px;
+
+  margin:auto;
+
+  text-align:center;
+
+  padding-top:120px;
+}
+
+.hero h1{
+  font-size:56px;
+  margin-bottom:20px;
+}
+
+.hero p{
+  color:#cbd5e1;
+  margin-bottom:30px;
+}
+
+.hero-btn{
+  background:#2563eb;
+  color:white;
+
+  padding:14px 24px;
+
+  border-radius:12px;
+}
+
+.login-page{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  min-height:100vh;
+}
+
+.login-card{
+  width:350px;
+
+  background:#1e293b;
+
+  padding:30px;
+
+  border-radius:20px;
+}
+
+.login-card input{
+  width:100%;
+
+  margin-top:15px;
+  margin-bottom:15px;
+
+  padding:12px;
+
+  border:none;
+
+  border-radius:10px;
+}
+
+.login-card button{
+  width:100%;
+
+  padding:12px;
+
+  border:none;
+
+  background:#2563eb;
+
+  color:white;
+
+  border-radius:10px;
+}
+
+.dashboard-layout{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:240px;
+
+  background:#111827;
+
+  padding:20px;
+}
+
+.sidebar nav{
+  display:flex;
+  flex-direction:column;
+
+  gap:15px;
+
+  margin-top:30px;
+}
+
+.sidebar a{
+  color:white;
+}
+
+.dashboard-content{
+  flex:1;
+  padding:30px;
+}
+
+.matrix{
+  margin-top:30px;
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:20px;
+}
+
+.quadrant{
+  min-height:220px;
+
+  border-radius:18px;
+
+  padding:20px;
+
+  font-size:20px;
+
+  font-weight:bold;
+}
+
+.q1{
+  background:#dc2626;
+}
+
+.q2{
+  background:#2563eb;
+}
+
+.q3{
+  background:#f59e0b;
+}
+
+.q4{
+  background:#374151;
+}
+
+@media(max-width:768px){
+
+  .dashboard-layout{
+    flex-direction:column;
+  }
+
+  .sidebar{
+    width:100%;
+  }
+
+  .matrix{
+    grid-template-columns:1fr;
+  }
+
+  .hero h1{
+    font-size:36px;
+  }
+}
