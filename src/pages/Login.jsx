@@ -3,39 +3,32 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [name, setName] = useState("");
-
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleLogin = () => {
     if (!name.trim()) return;
 
-    localStorage.setItem("monazzimUser", name);
-
+    localStorage.setItem("monazzim_user", name);
     navigate("/dashboard");
   };
 
   return (
-    <div className="login-page">
+    <div className="login">
+      <div className="card">
 
-      <div className="login-card">
-
-        <h1>مرحبًا بك</h1>
-
-        <p>اكتب اسمك للبدء</p>
+        <h2>Welcome</h2>
 
         <input
-          type="text"
-          placeholder="اسمك"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your name"
         />
 
-        <button onClick={handleSubmit}>
-          دخول
+        <button onClick={handleLogin}>
+          Continue
         </button>
 
       </div>
-
     </div>
   );
 }

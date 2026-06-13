@@ -1,36 +1,72 @@
-import Sidebar from "../components/layout/Sidebar";
+import { useEffect, useState } from "react";
+import TaskInput from "../components/TaskInput";
+import TaskList from "../components/TaskList";
+import { classifyTask } from "../services/ai";
 
 export default function Dashboard() {
-  const user =
-    localStorage.getItem("monazzimUser") || "User";
+  const [tasks, setTasks] = useState([]);
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    setName(localStorage.getItem("monazzim_user"));
+
+    const saved = localStorage.getItem("tasks");
+    if (saved) setTasks(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
+
+  const addTask = (text) => {
+    const newTask = {
+      id: Date.now(),
+      text,
+      type: classifyTask(text)
+    };
+
+    setTasks([...tasks, newTask]);
+  };
+
+  const removeTask = (id) => {
+    setTasks(tasks.filter((t) => t.id !== id));
+  };
+
+  const filter = (type) => tasks.filter(t => t.type === type);
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard">
 
-      <Sidebar />
+      <aside className="sidebar">
+        <h2>Monazzim</h2>
+      </aside>
 
-      <main className="dashboard-content">
+      <main className="main">
 
-        <h1>
-          أهلاً {user}
-        </h1>
+        <h1>Welcome {name}</h1>
+
+        <TaskInput addTask={addTask} />
 
         <div className="matrix">
 
-          <div className="quadrant q1">
-            مهم وعاجل
+          <div className="box red">
+            <h3>Urgent & Important</h3>
+            <TaskList tasks={filter("urgent-important")} removeTask={removeTask} />
           </div>
 
-          <div className="quadrant q2">
-            مهم وغير عاجل
+          <div className="box blue">
+            <h3>Important</h3>
+            <TaskList tasks={filter("important")} removeTask={removeTask} />
           </div>
 
-          <div className="quadrant q3">
-            غير مهم وعاجل
+          <div className="box yellow">
+            <h3>Urgent</h3>
+            <TaskList tasks={filter("urgent")} removeTask={removeTask} />
           </div>
 
-          <div className="quadrant q4">
-            غير مهم وغير عاجل
+          <div className="box gray">
+            <h3>Low Priority</h3>
+            <TaskList tasks={filter("low")} removeTask={removeTask} />
           </div>
 
         </div>

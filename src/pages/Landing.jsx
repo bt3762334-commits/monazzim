@@ -4,32 +4,19 @@ export default function Landing() {
   return (
     <div className="landing">
 
-      <nav className="navbar">
-
-        <h2>مُنظم</h2>
-
-        <Link className="btn" to="/login">
-          ابدأ الآن
-        </Link>
-
+      <nav className="nav">
+        <h2>Monazzim</h2>
+        <Link to="/login" className="btn">Start</Link>
       </nav>
 
-      <section className="hero">
+      <div className="hero">
+        <h1>Monazzim</h1>
+        <p>AI Productivity OS + Eisenhower Matrix</p>
 
-        <h1>
-          نظم يومك بطريقة أذكى
-        </h1>
-
-        <p>
-          إدارة المهام، مصفوفة أيزنهاور،
-          التركيز، الإنجاز والتحليل في مكان واحد.
-        </p>
-
-        <Link className="hero-btn" to="/login">
-          ابدأ مجانًا
+        <Link to="/login" className="btn-primary">
+          Get Started
         </Link>
-
-      </section>
+      </div>
 
     </div>
   );

@@ -4,7 +4,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 
-function App() {
+export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
@@ -13,5 +13,3 @@ function App() {
     </Routes>
   );
 }
-
-export default App;
