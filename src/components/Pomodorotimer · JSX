@@ -1,0 +1,123 @@
+import { useState, useEffect, useRef } from "react";
+
+const MODES = [
+  { key: "work",  label: "تركيز",      minutes: 25, color: "#7F77DD" },
+  { key: "short", label: "راحة قصيرة", minutes: 5,  color: "#1D9E75" },
+  { key: "long",  label: "راحة طويلة", minutes: 15, color: "#BA7517" },
+];
+
+export default function PomodoroTimer({ tasks, onComplete }) {
+  const [modeIdx, setModeIdx] = useState(0);
+  const [seconds, setSeconds] = useState(MODES[0].minutes * 60);
+  const [running, setRunning] = useState(false);
+  const [cycles, setCycles] = useState(0);
+  const [selectedTask, setSelectedTask] = useState("");
+  const [log, setLog] = useState(() => {
+    const s = localStorage.getItem("monazzim_pomo_log");
+    return s ? JSON.parse(s) : [];
+  });
+  const intervalRef = useRef(null);
+  const mode = MODES[modeIdx];
+
+  useEffect(() => { setSeconds(mode.minutes * 60); setRunning(false); }, [modeIdx]);
+
+  useEffect(() => {
+    if (running) {
+      intervalRef.current = setInterval(() => {
+        setSeconds(s => {
+          if (s <= 1) { clearInterval(intervalRef.current); setRunning(false); handleComplete(); return 0; }
+          return s - 1;
+        });
+      }, 1000);
+    } else { clearInterval(intervalRef.current); }
+    return () => clearInterval(intervalRef.current);
+  }, [running]);
+
+  function handleComplete() {
+    if (mode.key === "work") {
+      const newCycles = cycles + 1;
+      setCycles(newCycles);
+      onComplete && onComplete();
+      const entry = { task: selectedTask || "بدون مهمة محددة", time: new Date().toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" }), date: new Date().toLocaleDateString("ar-EG") };
+      const newLog = [entry, ...log].slice(0, 20);
+      setLog(newLog);
+      localStorage.setItem("monazzim_pomo_log", JSON.stringify(newLog));
+      setModeIdx(newCycles % 4 === 0 ? 2 : 1);
+    } else { setModeIdx(0); }
+  }
+
+  function reset() { setRunning(false); setSeconds(mode.minutes * 60); }
+
+  const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const secs = String(seconds % 60).padStart(2, "0");
+  const pct = ((mode.minutes * 60 - seconds) / (mode.minutes * 60)) * 100;
+  const circ = 2 * Math.PI * 80;
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16, alignItems: "start" }}>
+      <div style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 16, padding: 32, display: "flex", flexDirection: "column", alignItems: "center", gap: 24 }}>
+        <div style={{ display: "flex", gap: 6, background: "var(--color-background-secondary)", padding: 4, borderRadius: 24 }}>
+          {MODES.map((m, i) => (
+            <button key={m.key} onClick={() => setModeIdx(i)} style={{ padding: "6px 16px", borderRadius: 20, border: "none", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: 13, background: modeIdx === i ? m.color : "transparent", color: modeIdx === i ? "#fff" : "var(--color-text-secondary)", transition: "all 0.2s", fontWeight: modeIdx === i ? 500 : 400 }}>
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ position: "relative", width: 200, height: 200 }}>
+          <svg width="200" height="200" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--color-background-secondary)" strokeWidth="8" />
+            <circle cx="100" cy="100" r="80" fill="none" stroke={mode.color} strokeWidth="8"
+              strokeDasharray={circ} strokeDashoffset={circ * (1 - pct / 100)}
+              strokeLinecap="round" style={{ transition: "stroke-dashoffset 0.5s ease" }} />
+          </svg>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontSize: 42, fontWeight: 300, letterSpacing: 2, color: "var(--color-text-primary)", fontVariantNumeric: "tabular-nums" }}>{mins}:{secs}</div>
+            <div style={{ fontSize: 13, color: "var(--color-text-secondary)", marginTop: 4 }}>{mode.label}</div>
+          </div>
+        </div>
+
+        <div style={{ width: "100%", maxWidth: 340 }}>
+          <label style={{ fontSize: 12, color: "var(--color-text-secondary)", display: "block", marginBottom: 6 }}>المهمة الحالية</label>
+          <select value={selectedTask} onChange={e => setSelectedTask(e.target.value)} style={{ width: "100%", padding: "8px 12px", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 8, background: "var(--color-background-secondary)", color: "var(--color-text-primary)", fontSize: 13, fontFamily: "var(--font-sans)", outline: "none" }}>
+            <option value="">اختار مهمة...</option>
+            {tasks.map((t, i) => <option key={i} value={t.text}>{t.text}</option>)}
+          </select>
+        </div>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => setRunning(r => !r)} style={{ padding: "10px 32px", borderRadius: 24, border: "none", background: mode.color, color: "#fff", fontSize: 15, fontWeight: 500, cursor: "pointer", fontFamily: "var(--font-sans)" }}>
+            {running ? "⏸ إيقاف" : "▶ ابدأ"}
+          </button>
+          <button onClick={reset} style={{ padding: "10px 20px", borderRadius: 24, border: "0.5px solid var(--color-border-tertiary)", background: "var(--color-background-secondary)", color: "var(--color-text-secondary)", fontSize: 14, cursor: "pointer", fontFamily: "var(--font-sans)" }}>
+            ↺ إعادة
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+          <span style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>جلسات اليوم:</span>
+          {Array.from({ length: Math.max(4, cycles) }).map((_, i) => (
+            <div key={i} style={{ width: 12, height: 12, borderRadius: "50%", background: i < cycles ? mode.color : "var(--color-background-secondary)", border: `1.5px solid ${mode.color}`, transition: "background 0.3s" }} />
+          ))}
+          <span style={{ fontSize: 13, fontWeight: 500, color: mode.color }}>{cycles}</span>
+        </div>
+      </div>
+
+      <div style={{ background: "var(--color-background-primary)", border: "0.5px solid var(--color-border-tertiary)", borderRadius: 16, padding: 20 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 500, margin: "0 0 12px", color: "var(--color-text-primary)" }}>📋 سجل الجلسات</h3>
+        {log.length === 0 ? (
+          <p style={{ fontSize: 12, color: "var(--color-text-secondary)", textAlign: "center", padding: "20px 0" }}>ابدأ أول بومودورو! 🍅</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 380, overflowY: "auto" }}>
+            {log.map((entry, i) => (
+              <div key={i} style={{ padding: "8px 10px", background: "var(--color-background-secondary)", borderRadius: 8, border: "0.5px solid var(--color-border-tertiary)" }}>
+                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 2 }}>{entry.task}</div>
+                <div style={{ fontSize: 11, color: "var(--color-text-secondary)" }}>{entry.date} · {entry.time}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
